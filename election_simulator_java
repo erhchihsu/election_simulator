@@ -1,0 +1,114 @@
+// 01/27/2023
+// CSE 121 Section A
+//
+// Programming Assignment P1
+
+import java.util.*;
+
+// This class creates a election Simulator,
+// which generates random election results 10 times (districts) 
+// per simulation, and repeats simulations for 5 times. 
+// We estimates the number of votes, percentage of votes recieved, 
+// and the average of total recieved votes across districs.
+
+public class ElectionSimulator {
+    // Declare the constants which will be used throughout the program.
+    // The number of simulations to run 
+    public static final int NUM_SIMS = 5;
+    // The number of districts in each simulation 
+    public static final int NUM_DISTS = 10;
+    // The polling average for our candidate 
+    public static final double POLL_AVG = .52;
+    // The margin of error of the polls 
+    public static final double POLL_ERR = .05;
+    // start a new Random and named it rand
+    public static final Random rand = new Random();
+
+    // Implement outputting the results for the single simulation with multiple districts. 
+    public static void main(String[] args){
+        // introduction
+        System.out.println("Welcome to the Election Simulator!");
+        System.out.println("Running " + NUM_SIMS + " simulations of " + NUM_DISTS + " districts.");
+        System.out.println("Our candidate is polling at " + POLL_AVG*100 + "% with a " + POLL_ERR*100 + "% margin of error.");
+        System.out.println();
+
+        // prepare a double for furthur use of averaging recieved votes percentages
+        double ourVotesTotal = 0.0;
+
+        // create a outer loop for 5 simulations
+        for (int i = 1; i <= NUM_SIMS; i++){
+           
+            // prepare int for furthur sum calculation
+            int totalVotes = 0;
+            int opponentVotes = 0;
+            int ourVotes = 0;
+
+            // create a inner loop for random elections in 10 districts 
+            for(int j = 0; j < NUM_DISTS; j++){
+                // determine the number of voters (turnout)
+                int numVoters = rand.nextInt(1000)+1;
+                // determine the polling error
+                double pollingError = rand.nextGaussian() * 0.5 * POLL_ERR;
+                // determine the actual number of votes for our candidate
+                double numVotesOur = (POLL_AVG + pollingError) * numVoters;
+               
+                // convert the counts of vote from double to int
+                int numVotesOurInt = (int)numVotesOur;
+               
+                // determine the total number of voters
+                totalVotes = totalVotes + numVoters;
+                // determine the total number of votes for our candidate across all districts
+                ourVotes = ourVotes + numVotesOurInt;
+                // determine the total number of votes for opponent across all districts
+                opponentVotes = totalVotes - ourVotes;
+               
+            }
+
+            // at the outer loop
+            // determine whether out candidate winning the election
+            boolean whetherWin = ourVotes > (totalVotes/2.0);
+            // determine the percentage of votes the opponent get in one simulation
+            double opponentVotesPct = (1.0*opponentVotes / totalVotes)*100;
+            // determine the percentage of votes our candidate get in one simulation
+            double ourVotesPct = (1.0*ourVotes / totalVotes)*100;
+            // round the opponent percentage to two decimal places
+            double opponentVotesPctRound = (double) Math.round(opponentVotesPct * 100)/100;
+            // round our percentage to two decimal places
+            double ourVotesPctRound = (double) Math.round(ourVotesPct * 100)/100;
+           
+
+            // print the results above
+            System.out.println("Running simulation #" + i + ":");
+            System.out.println("  Win? " + whetherWin);
+            System.out.println("  Results: " + ourVotes + " (" + ourVotesPctRound + "%) - " + opponentVotes + " (" + opponentVotesPctRound + "%)");
+            System.out.print("  Visualization: ");
+            // create a loop for the + symbol
+            // divide the total votes by 100 and round down the number
+            // to determine the number of + symbols and print them
+            for(int k = 0; k < (Math.floor(ourVotes/100)); k++){
+                System.out.print("+");
+            }
+            System.out.println();
+            // keep the start points of lines aligned
+            System.out.print("                 ");
+            // create a loop for the - symbol
+            // divide the total votes by 100 and round down the number
+            // to determine the number of - symbols and print them
+            for(int l = 0; l < (Math.floor(opponentVotes/100)); l++){
+                System.out.print("-");
+            }
+            System.out.println();
+            // calculate the sum of recieved vote percentage across simulations
+            ourVotesTotal = ourVotesTotal + ourVotesPct;
+           
+        }
+       
+        // set the average of total recieved vote percentage
+        double ourVotesPctTotal = ourVotesTotal / NUM_SIMS;
+        // round the number to two decimal places 
+        ourVotesPctTotal = (double) Math.round(ourVotesPctTotal * 100)/100;
+        // print the result
+        System.out.println();
+        System.out.println("Average vote percentage: " + ourVotesPctTotal + "%");
+    }
+}
